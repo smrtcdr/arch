@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+#
+# wget https://raw.githubusercontent.com/smrtcdr/arch/master/strap.sh
+#
+
 # break on errors
 set -e
 
@@ -49,7 +53,7 @@ sleep 3;
 msg "configuring EFI boot"
 arch-chroot ${TARGET_DIR} \
   bootctl --path=/boot install
-partuuid=$(blkid -s PARTUUID -o value $root_device)
+partuuid=$(blkid -s PARTUUID -o value ${ROOT_PARTITION})
 tee ${TARGET_DIR}/boot/loader/entries/arch.conf <<EOF
 title Arch Linux
 linux /vmlinuz-linux
