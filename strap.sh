@@ -102,8 +102,8 @@ sync;
 
 msg "system cleanup"
 arch-chroot ${TARGET_DIR} \
-  pacman -Rdd --noconfirm pacman-mirrorlist
-sync;
+  pacman -R --nodeps licenses, pacman-mirrorlist; \
+  [[ -f /etc/pacman.d/mirrorlist.pacsave]] && mv /etc/pacman.d/mirrorlist{.pacsave,}
 sed -i 's%#NoExtract\s=%NoExtract    = usr/share/doc/*\
 NoExtract    = usr/share/licenses/*\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
@@ -114,8 +114,9 @@ cd ${TARGET_DIR}/usr/share/locale && find . ! -name "locale.alias" -exec rm -r {
 cd ${TARGET_DIR}/usr/share/man && find . -type d ! -name "man*" -exec rm -r {} \; 2>/dev/null
 rm -rf ${TARGET_DIR}/var/cache/pacman/pkg/ 
 rm -rf ${TARGET_DIR}/var/lib/pacman/sync/ 
-arch-chroot ${TARGET_DIR}
-  du -hsx /
+arch-chroot ${TARGET_DIR} \
+  du -hsx
+sync;
 
 msg "installation complete!"
 pause 'Press [Enter] key to continue...'
