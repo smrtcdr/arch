@@ -83,7 +83,7 @@ echo 'LANG=en_US.UTF-8' > ${TARGET_DIR}/etc/locale.conf
 echo 'KEYMAP=us' > ${TARGET_DIR}/etc/vconsole.conf
 sed -i 's/#en_US.UTF-8/en_US.UTF-8/' ${TARGET_DIR}/etc/locale.gen
 arch-chroot ${TARGET_DIR} locale-gen
-arch-chroot ${TARGET_DIR} cp /etc/skel/* /root
+arch-chroot ${TARGET_DIR} cp -r /etc/skel/ /root
 arch-chroot ${TARGET_DIR} ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localtime
 arch-chroot ${TARGET_DIR} sed -i 's/#Color/Color/' /etc/pacman.conf
 arch-chroot ${TARGET_DIR} sed -i 's/include unknown.syntax/include sh.syntax/' /usr/share/mc/syntax/Syntax
