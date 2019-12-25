@@ -24,8 +24,8 @@ function msg ()
 }
 
 msg "clearing partition table on ${DISK}"
-wipefs -a ${DISK}
 sgdisk -Z ${DISK}
+wipefs -a ${DISK}
 
 msg "creating /boot and /root partitions on ${DISK}"
 sgdisk -n 0:0:+100M -t 0:ef00 -c 0:"efi_boot" ${DISK}
@@ -47,7 +47,7 @@ echo -e 'Server = http://ftp.eenet.ee/pub/archlinux/$repo/os/$arch' > /etc/pacma
 sed -i 's/#Color/Color/' /etc/pacman.conf
 
 msg "bootstrapping base installation"
-pacstrap ${TARGET_DIR} base mc htop sudo --ignore licenses,pacman-mirrorlist
+pacstrap ${TARGET_DIR} base mc htop sudo --ignore pacman-mirrorlist
 
 msg "configuring EFI boot"
 arch-chroot ${TARGET_DIR} bootctl --path=/boot install
@@ -93,10 +93,8 @@ arch-chroot ${TARGET_DIR} ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localti
 arch-chroot ${TARGET_DIR} sed -i 's/#Color/Color/' /etc/pacman.conf
 arch-chroot ${TARGET_DIR} sed -i 's/include unknown.syntax/include sh.syntax/' /usr/share/mc/syntax/Syntax
 arch-chroot ${TARGET_DIR} hostnamectl set-hostname arch64
-pause 'Press [Enter] key to continue...'
 
 msg "system cleanup"
-# arch-chroot ${TARGET_DIR} pacman -Rdd --noconfirm licenses pacman-mirrorlist
 arch-chroot ${TARGET_DIR} sed -i 's%#NoExtract\s=%NoExtract    = usr/share/doc/*\
 NoExtract    = usr/share/licenses/*\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
