@@ -41,7 +41,7 @@ msg "generate fstab"
 genfstab -pU ${TARGET_DIR} >> ${TARGET_DIR}/etc/fstab
 
 msg "configure pacman mirrors"
-echo 'Server = http://ftp.eenet.ee/pub/archlinux/\$repo/os/\$arch > /etc/pacman.d/mirrorlist
+echo 'Server = http://ftp.eenet.ee/pub/archlinux/\$repo/os/\$arch' > /etc/pacman.d/mirrorlist
 sed -i 's/#Color/Color/' /etc/pacman.conf
 pasman -Syy
 
@@ -66,7 +66,7 @@ DHCP=ipv4
 LinkLocalAddresing=no
 IPv6AcceptRA=no
 EOF
-echo nameserver 192.168.1.1 >> ${TARGET_DIR}/etc/resolv.conf
+echo 'nameserver 192.168.1.1' >> ${TARGET_DIR}/etc/resolv.conf
 arch-chroot ${TARGET_DIR} systemctl enable systemd-networkd
 
 msg "install linux kernel"
