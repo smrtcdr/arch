@@ -38,7 +38,7 @@ mkdir ${TARGET_DIR}/boot
 mount ${BOOT_PARTITION} ${TARGET_DIR}/boot
 
 msg "configure pacman mirrors"
-echo 'Server = http://ftp.eenet.ee/pub/archlinux/\$repo/os/\$arch' > /etc/pacman.d/mirrorlist
+echo 'Server = http://ftp.eenet.ee/pub/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
 sed -i 's/#Color/Color/' /etc/pacman.conf
 pacman -Syy
 
