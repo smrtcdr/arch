@@ -92,7 +92,7 @@ arch-chroot ${TARGET_DIR} sed -i 's/include unknown.syntax/include sh.syntax/' /
 arch-chroot ${TARGET_DIR} hostnamectl set-hostname arch64
 
 msg "cleanup system"
-arch-chroot ${TARGET_DIR} pacman -Sdd licenses pacman-mirrorlist
+arch-chroot ${TARGET_DIR} pacman -Rdd licenses pacman-mirrorlist
 arch-chroot ${TARGET_DIR} sed -i 's|#NoExtract\s=|NoExtract    = usr/share/doc/*\
 NoExtract    = usr/share/licenses/*\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
