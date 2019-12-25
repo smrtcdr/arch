@@ -47,22 +47,23 @@ echo -e 'Server = http://ftp.eenet.ee/pub/archlinux/$repo/os/$arch' > /etc/pacma
 sed -i 's/#Color/Color/' /etc/pacman.conf
 
 msg "bootstrapping base installation"
-pacstrap ${TARGET_DIR} base mc htop sudo
+pacstrap ${TARGET_DIR} base mc htop sudo --ignore licenses,pacman-mirrorlist
 
 msg "configuring EFI boot"
 arch-chroot ${TARGET_DIR} bootctl --path=/boot install
-cat <<-EOF > ${TARGET_DIR}/boot/loader/entries/arch.conf
+partuuid=$(blkid -s PARTUUID -o value $root_device)
+tee ${TARGET_DIR}/boot/loader/entries/arch.conf <<EOF
 title Arch Linux
 linux /vmlinuz-linux
 initrd /initramfs-linux.img
-options root=PARTUUID=$( blkid -s PARTUUID -o value ${ROOT_PARTITION} ) rw ipv6.disable=1
+options root=PARTUUID=${partuuid} rw ipv6.disable=1
 EOF
 
 msg "generating fstab"
 genfstab -pU ${TARGET_DIR} >> ${TARGET_DIR}/etc/fstab
 
 msg "configure network"
-cat <<-EOF > ${TARGET_DIR}/etc/systemd/network/enp0s3.network
+tee ${TARGET_DIR}/etc/systemd/network/enp0s3.network <<EOF
 [Match]
 name=enp0s3
 [Network]
@@ -77,8 +78,10 @@ msg "installing linux kernel"
 arch-chroot ${TARGET_DIR} pacman -S --noconfirm linux
 
 msg "installing extra packages"
-arch-chroot ${TARGET_DIR} pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils-nox
-arch-chroot ${TARGET_DIR} pacman -S --noconfirm openssh net-tools vim arch-install-scripts pacman-contrib
+arch-chroot ${TARGET_DIR} \
+pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils-nox \
+            openssh net-tools vim bash-completion \
+            arch-install-scripts pacman-contrib
 
 msg "configuring user settings"
 echo 'LANG=en_US.UTF-8' > ${TARGET_DIR}/etc/locale.conf
@@ -90,17 +93,18 @@ arch-chroot ${TARGET_DIR} ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localti
 arch-chroot ${TARGET_DIR} sed -i 's/#Color/Color/' /etc/pacman.conf
 arch-chroot ${TARGET_DIR} sed -i 's/include unknown.syntax/include sh.syntax/' /usr/share/mc/syntax/Syntax
 arch-chroot ${TARGET_DIR} hostnamectl set-hostname arch64
+pause 'Press [Enter] key to continue...'
 
 msg "system cleanup"
-arch-chroot ${TARGET_DIR} pacman -Rdd --noconfirm licenses pacman-mirrorlist
-arch-chroot ${TARGET_DIR} sed -i 's|#NoExtract\s=|NoExtract    = usr/share/doc/*\
+# arch-chroot ${TARGET_DIR} pacman -Rdd --noconfirm licenses pacman-mirrorlist
+arch-chroot ${TARGET_DIR} sed -i 's%#NoExtract\s=%NoExtract    = usr/share/doc/*\
 NoExtract    = usr/share/licenses/*\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
-NoExtract    = usr/share/man/* !usr/share/man/man*|' /etc/pacman.conf
+NoExtract    = usr/share/man/* !usr/share/man/man*%' /etc/pacman.conf
 arch-chroot ${TARGET_DIR} rm -rf /usr/share/doc/*
 arch-chroot ${TARGET_DIR} rm -rf /usr/share/licenses/*
-arch-chroot ${TARGET_DIR} cd /usr/share/locale; find . ! -name "locale.alias" -exec rm -r {} \;
-arch-chroot ${TARGET_DIR} cd /usr/share/man; find . -type d ! -name "man*" -exec rm -r {} \;
+arch-chroot ${TARGET_DIR} cd /usr/share/locale && find . ! -name "locale.alias" -exec rm -r {} \;
+arch-chroot ${TARGET_DIR} cd /usr/share/man && find . -type d ! -name "man*" -exec rm -r {} \;
 arch-chroot ${TARGET_DIR} rm -rf /var/cache/pacman/pkg/ 
 arch-chroot ${TARGET_DIR} rm -rf /var/lib/pacman/sync/ 
 arch-chroot ${TARGET_DIR} du -hsx /
