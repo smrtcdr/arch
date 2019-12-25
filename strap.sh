@@ -103,7 +103,9 @@ sync;
 msg "system cleanup"
 arch-chroot ${TARGET_DIR} \
   pacman -Rdd --noconfirm licenses pacman-mirrorlist; sync;
-if [ -f /etc/pacman.d/mirrorlist.pacsave]; then mv /etc/pacman.d/mirrorlist.pacsave /etc/pacman.d/mirrorlist; fi
+if [[ -f ${TARGET_DIR}/etc/pacman.d/mirrorlist.pacsave ]]
+    then mv ${TARGET_DIR}/etc/pacman.d/mirrorlist.pacsave ${TARGET_DIR}/etc/pacman.d/mirrorlist
+fi
 sed -i 's%#NoExtract\s=%NoExtract    = usr/share/doc/*\
 NoExtract    = usr/share/licenses/*\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
