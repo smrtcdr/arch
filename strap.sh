@@ -40,7 +40,7 @@ mount ${BOOT_PARTITION} ${TARGET_DIR}/boot
 msg "configure pacman mirrors"
 echo 'Server = http://ftp.eenet.ee/pub/archlinux/\$repo/os/\$arch' > /etc/pacman.d/mirrorlist
 sed -i 's/#Color/Color/' /etc/pacman.conf
-pasman -Syy
+pacman -Syy
 
 msg "bootstrapping base installation"
 pacstrap ${TARGET_DIR} base mc htop sudo
