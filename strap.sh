@@ -99,8 +99,8 @@ NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
 NoExtract    = usr/share/man/* !usr/share/man/man*|' /etc/pacman.conf
 arch-chroot ${TARGET_DIR} rm -rf /usr/share/doc/*
 arch-chroot ${TARGET_DIR} rm -rf /usr/share/licenses/*
-arch-chroot ${TARGET_DIR} shopt -s extglob; cd /usr/share/locale && rm -rf !(locale.alias)
-arch-chroot ${TARGET_DIR} shopt -s extglob; cd /usr/share/man && rm -rf !(man*)
+arch-chroot ${TARGET_DIR} cd /usr/share/locale; find . ! -name "locale.alias" -exec rm -r {} \;
+arch-chroot ${TARGET_DIR} cd /usr/share/man; find . -type d ! -name "man*" -exec rm -r {} \;
 arch-chroot ${TARGET_DIR} rm -rf /var/cache/pacman/pkg/ 
 arch-chroot ${TARGET_DIR} rm -rf /var/lib/pacman/sync/ 
 arch-chroot ${TARGET_DIR} du -hsx /
