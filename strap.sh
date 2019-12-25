@@ -115,8 +115,7 @@ cd ${TARGET_DIR}/usr/share/man && find . -type d ! -name "man*" -exec rm -r {} \
 rm -rf ${TARGET_DIR}/var/cache/pacman/pkg/ 
 rm -rf ${TARGET_DIR}/var/lib/pacman/sync/ 
 arch-chroot ${TARGET_DIR} \
-  du -hsx
-sync;
+  sync; du -hsx
 
 msg "installation complete!"
 pause 'Press [Enter] key to continue...'
