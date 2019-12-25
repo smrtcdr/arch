@@ -96,7 +96,8 @@ sed -i 's/include unknown.syntax/include sh.syntax/' ${TARGET_DIR}/usr/share/mc/
 arch-chroot ${TARGET_DIR} \
   cp -rT /etc/skel /root; \
   ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localtime; \
-  locale-gen && hostnamectl set-hostname arch64
+  locale-gen; \
+  hostnamectl set-hostname arch64
 sleep 3;
 
 msg "system cleanup"
