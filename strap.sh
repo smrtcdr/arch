@@ -49,7 +49,7 @@ sed -i 's/#Color/Color/' /etc/pacman.conf
 msg "bootstrapping base installation"
 pacstrap ${TARGET_DIR} base mc htop sudo
 
-msg "configure EFI boot"
+msg "configuring EFI boot"
 arch-chroot ${TARGET_DIR} bootctl --path=/boot install
 cat <<-EOF > ${TARGET_DIR}/boot/loader/entries/arch.conf
 title Arch Linux
@@ -58,7 +58,7 @@ initrd /initramfs-linux.img
 options root=PARTUUID=$( blkid -s PARTUUID -o value ${ROOT_PARTITION} ) rw ipv6.disable=1
 EOF
 
-msg "generate fstab"
+msg "generating fstab"
 genfstab -pU ${TARGET_DIR} >> ${TARGET_DIR}/etc/fstab
 
 msg "configure network"
@@ -73,12 +73,12 @@ EOF
 echo 'nameserver 192.168.1.1' >> ${TARGET_DIR}/etc/resolv.conf
 arch-chroot ${TARGET_DIR} systemctl enable systemd-networkd
 
-msg "install linux kernel"
+msg "installing linux kernel"
 arch-chroot ${TARGET_DIR} pacman -S --noconfirm linux
 
-msg "install extra packages"
+msg "installing extra packages"
 arch-chroot ${TARGET_DIR} pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils-nox
-arch-chroot ${TARGET_DIR} pacman -S --noconfirm openssh net-tools vim arch-install-scripts
+arch-chroot ${TARGET_DIR} pacman -S --noconfirm openssh net-tools vim arch-install-scripts pacman-contrib
 
 msg "configure user settings"
 echo 'LANG=en_US.UTF-8' > ${TARGET_DIR}/etc/locale.conf
@@ -90,7 +90,19 @@ arch-chroot ${TARGET_DIR} ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localti
 arch-chroot ${TARGET_DIR} sed -i 's/#Color/Color/' /etc/pacman.conf
 arch-chroot ${TARGET_DIR} sed -i 's/include unknown.syntax/include sh.syntax/' /usr/share/mc/syntax/Syntax
 arch-chroot ${TARGET_DIR} hostnamectl set-hostname arch64
-arch-chroot ${TARGET_DIR} yes | pacman -Scc
+
+msg "cleanup system"
+arch-chroot ${TARGET_DIR} pacman -Sdd licenses pacman-mirrorlist
+arch-chroot ${TARGET_DIR} sed -i 's|#NoExtract\s=|NoExtract    = usr/share/doc/*\
+NoExtract    = usr/share/licenses/*\
+NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
+NoExtract    = usr/share/man/* !usr/share/man/man*|' /etc/pacman.conf
+arch-chroot ${TARGET_DIR} rm -f /usr/share/doc/*
+arch-chroot ${TARGET_DIR} rm -f /usr/share/licenses/*
+arch-chroot ${TARGET_DIR} shopt -s extglob; cd /usr/share/locale && rm -rf !(locale.alias)
+arch-chroot ${TARGET_DIR} shopt -s extglob; cd /usr/share/man && rm -rf !(man*)
+arch-chroot ${TARGET_DIR} rm -f /var/cache/pacman/pkg/ 
+arch-chroot ${TARGET_DIR} rm -f /var/lib/pacman/sync/ 
 arch-chroot ${TARGET_DIR} du -hsx /
 
 msg "installation complete!"
