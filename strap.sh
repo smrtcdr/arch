@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 #
 # wget https://raw.githubusercontent.com/smrtcdr/arch/master/strap.sh
 #
@@ -24,8 +23,8 @@ function msg ()
 }
 
 msg "clearing partition table on ${DISK}"
-sgdisk -Z ${DISK}
 wipefs -a ${DISK}
+sgdisk -Z ${DISK}
 
 msg "creating /boot and /root partitions on ${DISK}"
 sgdisk -n 0:0:+100M -t 0:ef00 -c 0:"efi_boot" ${DISK}
@@ -35,7 +34,7 @@ sgdisk -p /dev/sda
 
 msg "creating filesystems"
 mkfs.fat -F32 ${BOOT_PARTITION}
-mkfs.ext4 -m 0 -F ${ROOT_PARTITION}
+mkfs.ext4 ${ROOT_PARTITION}
 
 msg "mounting partitions"
 mount ${ROOT_PARTITION} ${TARGET_DIR}
