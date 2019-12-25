@@ -51,7 +51,8 @@ pacstrap ${TARGET_DIR} base mc htop sudo
 sync;
 
 msg "configuring EFI boot"
-arch-chroot ${TARGET_DIR} bootctl --path=/boot install
+arch-chroot ${TARGET_DIR} \
+  bootctl --path=/boot install
 partuuid=$(blkid -s PARTUUID -o value $root_device)
 tee ${TARGET_DIR}/boot/loader/entries/arch.conf <<EOF
 title Arch Linux
@@ -73,14 +74,16 @@ LinkLocalAddresing=no
 IPv6AcceptRA=no
 EOF
 echo 'nameserver 192.168.1.1' >> ${TARGET_DIR}/etc/resolv.conf
-arch-chroot ${TARGET_DIR} systemctl enable systemd-networkd
+arch-chroot ${TARGET_DIR} \
+  systemctl enable systemd-networkd
 
 msg "installing linux kernel"
-arch-chroot ${TARGET_DIR} pacman -S --noconfirm linux
+arch-chroot ${TARGET_DIR} \
+  pacman -S --noconfirm linux
 
 msg "installing extra packages"
 arch-chroot ${TARGET_DIR} \
-pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils-nox \
+  pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils-nox \
             openssh net-tools vim bash-completion \
             arch-install-scripts pacman-contrib
 sync;
@@ -91,12 +94,16 @@ echo 'KEYMAP=us' > ${TARGET_DIR}/etc/vconsole.conf
 sed -i 's/#en_US.UTF-8/en_US.UTF-8/' ${TARGET_DIR}/etc/locale.gen
 sed -i 's/#Color/Color/' ${TARGET_DIR}/etc/pacman.conf
 sed -i 's/include unknown.syntax/include sh.syntax/' ${TARGET_DIR}/usr/share/mc/syntax/Syntax
-arch-chroot ${TARGET_DIR} cp -rT /etc/skel /root
-arch-chroot ${TARGET_DIR} ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localtime
-arch-chroot ${TARGET_DIR} sync; locale-gen && hostnamectl set-hostname arch64
+arch-chroot ${TARGET_DIR} \
+  cp -rT /etc/skel /root; \
+  ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localtime; \
+  locale-gen && hostnamectl set-hostname arch64
+sync;
 
 msg "system cleanup"
-arch-chroot ${TARGET_DIR} pacman -Rdd --noconfirm pacman-mirrorlist
+arch-chroot ${TARGET_DIR} \
+  pacman -Rdd --noconfirm pacman-mirrorlist
+sync;
 sed -i 's%#NoExtract\s=%NoExtract    = usr/share/doc/*\
 NoExtract    = usr/share/licenses/*\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
@@ -107,7 +114,8 @@ cd ${TARGET_DIR}/usr/share/locale && find . ! -name "locale.alias" -exec rm -r {
 cd ${TARGET_DIR}/usr/share/man && find . -type d ! -name "man*" -exec rm -r {} \; 2>/dev/null
 rm -rf ${TARGET_DIR}/var/cache/pacman/pkg/ 
 rm -rf ${TARGET_DIR}/var/lib/pacman/sync/ 
-arch-chroot ${TARGET_DIR} sync; du -hsx /
+arch-chroot ${TARGET_DIR}
+  du -hsx /
 
 msg "installation complete!"
 pause 'Press [Enter] key to continue...'
