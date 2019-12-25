@@ -47,7 +47,7 @@ echo -e 'Server = http://ftp.eenet.ee/pub/archlinux/$repo/os/$arch' > /etc/pacma
 sed -i 's/#Color/Color/' /etc/pacman.conf
 
 msg "bootstrapping base installation"
-pacstrap ${TARGET_DIR} base mc htop sudo --ignore pacman-mirrorlist
+pacstrap ${TARGET_DIR} base mc htop sudo
 sync;
 
 msg "configuring EFI boot"
@@ -96,6 +96,7 @@ arch-chroot ${TARGET_DIR} ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localti
 arch-chroot ${TARGET_DIR} sync; locale-gen && hostnamectl set-hostname arch64
 
 msg "system cleanup"
+arch-chroot ${TARGET_DIR} pacman -Rdd --noconfirm pacman-mirrorlist
 sed -i 's%#NoExtract\s=%NoExtract    = usr/share/doc/*\
 NoExtract    = usr/share/licenses/*\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
