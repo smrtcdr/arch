@@ -80,7 +80,7 @@ msg "installing extra packages"
 arch-chroot ${TARGET_DIR} pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils-nox
 arch-chroot ${TARGET_DIR} pacman -S --noconfirm openssh net-tools vim arch-install-scripts pacman-contrib
 
-msg "configure user settings"
+msg "configuring user settings"
 echo 'LANG=en_US.UTF-8' > ${TARGET_DIR}/etc/locale.conf
 echo 'KEYMAP=us' > ${TARGET_DIR}/etc/vconsole.conf
 sed -i 's/#en_US.UTF-8/en_US.UTF-8/' ${TARGET_DIR}/etc/locale.gen
@@ -91,18 +91,18 @@ arch-chroot ${TARGET_DIR} sed -i 's/#Color/Color/' /etc/pacman.conf
 arch-chroot ${TARGET_DIR} sed -i 's/include unknown.syntax/include sh.syntax/' /usr/share/mc/syntax/Syntax
 arch-chroot ${TARGET_DIR} hostnamectl set-hostname arch64
 
-msg "cleanup system"
-arch-chroot ${TARGET_DIR} pacman -Rdd licenses pacman-mirrorlist
+msg "system cleanup"
+arch-chroot ${TARGET_DIR} pacman -Rdd --noconfirm licenses pacman-mirrorlist
 arch-chroot ${TARGET_DIR} sed -i 's|#NoExtract\s=|NoExtract    = usr/share/doc/*\
 NoExtract    = usr/share/licenses/*\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
 NoExtract    = usr/share/man/* !usr/share/man/man*|' /etc/pacman.conf
-arch-chroot ${TARGET_DIR} rm -f /usr/share/doc/*
-arch-chroot ${TARGET_DIR} rm -f /usr/share/licenses/*
+arch-chroot ${TARGET_DIR} rm -rf /usr/share/doc/*
+arch-chroot ${TARGET_DIR} rm -rf /usr/share/licenses/*
 arch-chroot ${TARGET_DIR} shopt -s extglob; cd /usr/share/locale && rm -rf !(locale.alias)
 arch-chroot ${TARGET_DIR} shopt -s extglob; cd /usr/share/man && rm -rf !(man*)
-arch-chroot ${TARGET_DIR} rm -f /var/cache/pacman/pkg/ 
-arch-chroot ${TARGET_DIR} rm -f /var/lib/pacman/sync/ 
+arch-chroot ${TARGET_DIR} rm -rf /var/cache/pacman/pkg/ 
+arch-chroot ${TARGET_DIR} rm -rf /var/lib/pacman/sync/ 
 arch-chroot ${TARGET_DIR} du -hsx /
 
 msg "installation complete!"
