@@ -1,2 +1,2 @@
 # arch
-Various scripts
+Various scripts for virtual environments
