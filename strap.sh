@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# break on errors
 set -e
 
 DISK='/dev/sda'
@@ -13,14 +14,9 @@ ROOT_PARTITION="${DISK}2"
 Green='\e[0;32m'
 Reset='\e[0m'
 
-function pause ()
-{
-    read -p "$*"
-}
-
 function msg ()
 {
-    echo -e "${Green}[+] $*${Reset}"
+  echo -e "${Green}[+] $*${Reset}"
 }
 
 msg "clearing partition table on ${DISK}"
@@ -48,7 +44,7 @@ sed -i 's/#Color/Color/' /etc/pacman.conf
 
 msg "bootstrapping base installation"
 pacstrap ${TARGET_DIR} base mc htop sudo
-sync;
+sleep 3;
 
 msg "configuring EFI boot"
 arch-chroot ${TARGET_DIR} \
@@ -86,7 +82,7 @@ arch-chroot ${TARGET_DIR} \
   pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils-nox \
             openssh net-tools vim bash-completion \
             arch-install-scripts pacman-contrib
-sync;
+sleep 3;
 
 msg "configuring user settings"
 echo 'LANG=en_US.UTF-8' > ${TARGET_DIR}/etc/locale.conf
@@ -98,26 +94,26 @@ arch-chroot ${TARGET_DIR} \
   cp -rT /etc/skel /root; \
   ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localtime; \
   locale-gen && hostnamectl set-hostname arch64
-sync;
+sleep 3;
 
 msg "system cleanup"
-arch-chroot ${TARGET_DIR} \
-  pacman -Rdd --noconfirm licenses pacman-mirrorlist; sync;
-if [[ -f ${TARGET_DIR}/etc/pacman.d/mirrorlist.pacsave ]]
-    then mv ${TARGET_DIR}/etc/pacman.d/mirrorlist.pacsave ${TARGET_DIR}/etc/pacman.d/mirrorlist
-fi
-sed -i 's%#NoExtract\s=%NoExtract    = usr/share/doc/*\
+arch-chroot ${TARGET_DIR} pacman -Rdd --noconfirm --dbonly licenses pacman-mirrorlist
+sed -i 's|#NoExtract   =|NoExtract    = usr/share/doc/*\
 NoExtract    = usr/share/licenses/*\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
-NoExtract    = usr/share/man/* !usr/share/man/man*%' ${TARGET_DIR}/etc/pacman.conf
+NoExtract    = usr/share/man/* !usr/share/man/man*|' ${TARGET_DIR}/etc/pacman.conf
+# remove with exclusions
+cd ${TARGET_DIR}/usr/share/locale
+[ -n "$(find . -mindepth 1 ! -name "locale.alias" -delete 2>/dev/null)" ] && echo "error!"
+cd ${TARGET_DIR}/usr/share/man
+[ -n "$(find . -mindepth 1 -type d ! -name "man*" -delete 2>/dev/null)" ] && echo "error!"
+# remove everything
 rm -rf ${TARGET_DIR}/usr/share/doc/*
 rm -rf ${TARGET_DIR}/usr/share/licenses/*
-cd ${TARGET_DIR}/usr/share/locale && find . ! -name "locale.alias" -exec rm -r {} \; 2>/dev/null
-cd ${TARGET_DIR}/usr/share/man && find . -type d ! -name "man*" -exec rm -r {} \; 2>/dev/null
 rm -rf ${TARGET_DIR}/var/cache/pacman/pkg/ 
 rm -rf ${TARGET_DIR}/var/lib/pacman/sync/ 
-arch-chroot ${TARGET_DIR} \
-  sync; du -hsx
+du -hsx ${TARGET_DIR}
+sync;
 
 msg "installation complete!"
-pause 'Press [Enter] key to continue...'
+sleep 3
