@@ -37,9 +37,6 @@ mount ${ROOT_PARTITION} ${TARGET_DIR}
 mkdir ${TARGET_DIR}/boot
 mount ${BOOT_PARTITION} ${TARGET_DIR}/boot
 
-msg "generate fstab"
-genfstab -pU ${TARGET_DIR} >> ${TARGET_DIR}/etc/fstab
-
 msg "configure pacman mirrors"
 echo 'Server = http://ftp.eenet.ee/pub/archlinux/\$repo/os/\$arch' > /etc/pacman.d/mirrorlist
 sed -i 's/#Color/Color/' /etc/pacman.conf
@@ -56,6 +53,9 @@ linux /vmlinuz-linux
 initrd /initramfs-linux.img
 options root=PARTUUID=$( blkid -s PARTUUID -o value ${ROOT_PARTITION} ) rw ipv6.disable=1
 EOF
+
+msg "generate fstab"
+genfstab -pU ${TARGET_DIR} >> ${TARGET_DIR}/etc/fstab
 
 msg "configure network"
 cat <<-EOF > ${TARGET_DIR}/etc/systemd/network/enp0s3.network
