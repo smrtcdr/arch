@@ -53,7 +53,7 @@ msg "configuring EFI boot"
 arch-chroot ${TARGET_DIR} \
   bootctl --path=/boot install
 partuuid=$(blkid -s PARTUUID -o value ${ROOT_PARTITION})
-tee ${TARGET_DIR}/boot/loader/entries/arch.conf <<EOF
+cat <<-EOF > ${TARGET_DIR}/boot/loader/entries/arch.conf
 title Arch Linux
 linux /vmlinuz-linux
 initrd /initramfs-linux.img
@@ -64,7 +64,7 @@ msg "generating fstab"
 genfstab -pU ${TARGET_DIR} >> ${TARGET_DIR}/etc/fstab
 
 msg "configure network"
-tee ${TARGET_DIR}/etc/systemd/network/enp0s3.network <<EOF
+cat <<-EOF > ${TARGET_DIR}/etc/systemd/network/enp0s3.network
 [Match]
 name=enp0s3
 [Network]
@@ -117,7 +117,9 @@ rm -rf ${TARGET_DIR}/usr/share/doc/*
 rm -rf ${TARGET_DIR}/usr/share/licenses/*
 rm -rf ${TARGET_DIR}/var/cache/pacman/pkg/ 
 rm -rf ${TARGET_DIR}/var/lib/pacman/sync/ 
-tee ${TARGET_DIR}/root/.profile <<EOF
+ cat <<-EOF > ${TARGET_DIR}/root/.profile
+
+# my stuff
 export PS1='\[\033[1;36m\]\u\[\033[1;31m\]@\[\033[1;32m\]\h:\[\033[1;35m\]\w\[\033[1;31m\]\$\[\033[0m\] '
 EOF
 cp ./strap.sh /root
