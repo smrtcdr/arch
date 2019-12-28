@@ -86,7 +86,7 @@ EOF
 sed -i 's/#Color/Color/' ${TARGET_DIR}/etc/pacman.conf
 sed -i 's/include unknown.syntax/include sh.syntax/' ${TARGET_DIR}/usr/share/mc/syntax/Syntax
 arch-chroot ${TARGET_DIR} ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localtime
-arch-chroot ${TARGET_DIR} hostnamectl set-hostname arch64
+echo "a64vm" > ${TARGET_DIR}/etc/hostname
 
 msg "installing extra packages"
 arch-chroot ${TARGET_DIR} \
