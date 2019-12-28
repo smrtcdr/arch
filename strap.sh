@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 #
 # curl  -LO https://github.com/smrtcdr/arch/raw/master/strap.sh
 #
@@ -93,7 +93,6 @@ arch-chroot ${TARGET_DIR} pacman -S --noconfirm openssh net-tools wget vim bash-
 
 msg "installing linux kernel"
 arch-chroot ${TARGET_DIR} /usr/bin/pacman -S --noconfirm linux virtualbox-guest-modules-arch virtualbox-guest-utils-nox
-sleep 10
 
 msg "system cleanup"
 arch-chroot ${TARGET_DIR} /usr/bin/pacman -Rdd --noconfirm --dbonly licenses pacman-mirrorlist
@@ -103,10 +102,11 @@ NoExtract    = usr/share/licenses/* \'$'\n\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias \'$'\n\
 NoExtract    = usr/share/man/* !usr/share/man/man*|' ${TARGET_DIR}/etc/pacman.conf
 # remove with exclusions
-cd ${TARGET_DIR}/usr/share/locale
+pushd ${TARGET_DIR}/usr/share/locale
 [ -n "$(find . -mindepth 1 ! -name "locale.alias" -delete 2>/dev/null)" ] && echo "error!"
-cd ${TARGET_DIR}/usr/share/man
+pushd ${TARGET_DIR}/usr/share/man
 [ -n "$(find . -mindepth 1 -type d ! -name "man*" -delete 2>/dev/null)" ] && echo "error!"
+popd
 # remove everything
 rm -rf ${TARGET_DIR}/usr/share/doc/*
 rm -rf ${TARGET_DIR}/usr/share/licenses/*
