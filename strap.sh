@@ -96,7 +96,7 @@ arch-chroot ${TARGET_DIR} /usr/bin/pacman -S --noconfirm linux virtualbox-guest-
 
 msg "system cleanup"
 arch-chroot ${TARGET_DIR} /usr/bin/pacman -Rdd --noconfirm --dbonly licenses pacman-mirrorlist
-sed -i 's|#IgnorePkg   =|IgnorePkg   = licenses, pacman-mirrorlist/' ${TARGET_DIR}/etc/pacman.conf
+sed -i 's|#IgnorePkg   =|IgnorePkg   = licenses, pacman-mirrorlist|' ${TARGET_DIR}/etc/pacman.conf
 sed -i 's|#NoExtract   =|NoExtract   = usr/share/doc/* \
 NoExtract   = usr/share/licenses/* \
 NoExtract   = usr/share/locale/* !usr/share/locale/locale.alias \
