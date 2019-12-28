@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# wget https://raw.githubusercontent.com/smrtcdr/arch/master/strap.sh
+# wget https://github.com/smrtcdr/arch/raw/master/strap.sh
 #
 
 # break on errors
@@ -46,7 +46,7 @@ echo -e 'Server = http://ftp.eenet.ee/pub/archlinux/$repo/os/$arch' > /etc/pacma
 sed -i 's/#Color/Color/' /etc/pacman.conf
 
 msg "bootstrapping base installation"
-pacstrap ${TARGET_DIR} base mc htop sudo
+pacstrap ${TARGET_DIR} base sudo mc htop tmux
 sleep 3;
 
 msg "configuring EFI boot"
@@ -83,8 +83,8 @@ arch-chroot ${TARGET_DIR} \
 msg "installing extra packages"
 arch-chroot ${TARGET_DIR} \
   pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils-nox \
-            openssh net-tools vim bash-completion \
-            arch-install-scripts pacman-contrib
+            openssh net-tools wget \
+            vim bash-completion pacman-contrib arch-install-scripts
 sleep 3;
 
 msg "configuring user settings"
@@ -102,6 +102,7 @@ sleep 3;
 
 msg "system cleanup"
 arch-chroot ${TARGET_DIR} pacman -Rdd --noconfirm --dbonly licenses pacman-mirrorlist
+sed -i 's/#IgnorePkg   =/IgnorePkg   = pacman-mirrorlist, licenses/' ${TARGET_DIR}/etc/pacman.conf
 sed -i 's|#NoExtract   =|NoExtract    = usr/share/doc/*\
 NoExtract    = usr/share/licenses/*\
 NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
@@ -116,6 +117,10 @@ rm -rf ${TARGET_DIR}/usr/share/doc/*
 rm -rf ${TARGET_DIR}/usr/share/licenses/*
 rm -rf ${TARGET_DIR}/var/cache/pacman/pkg/ 
 rm -rf ${TARGET_DIR}/var/lib/pacman/sync/ 
+tee ${TARGET_DIR}/root/.profile <<EOF
+export PS1='\[\033[1;36m\]\u\[\033[1;31m\]@\[\033[1;32m\]\h:\[\033[1;35m\]\w\[\033[1;31m\]\$\[\033[0m\] '
+EOF
+cp ./strap.sh /root
 du -hsx ${TARGET_DIR}
 sync;
 
