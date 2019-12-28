@@ -102,11 +102,12 @@ NoExtract   = usr/share/licenses/* \
 NoExtract   = usr/share/locale/* !usr/share/locale/locale.alias \
 NoExtract   = usr/share/man/* !usr/share/man/man*|' ${TARGET_DIR}/etc/pacman.conf
 # remove with exclusions
-pushd ${TARGET_DIR}/usr/share/locale
+pushd >/dev/null
+cd ${TARGET_DIR}/usr/share/locale
 [ -n "$(find . -mindepth 1 ! -name "locale.alias" -delete 2>/dev/null)" ] && echo "error!"
-pushd ${TARGET_DIR}/usr/share/man
+cd ${TARGET_DIR}/usr/share/man
 [ -n "$(find . -mindepth 1 -type d ! -name "man*" -delete 2>/dev/null)" ] && echo "error!"
-popd
+popd >/dev/null
 # remove everything
 rm -rf ${TARGET_DIR}/usr/share/doc/*
 rm -rf ${TARGET_DIR}/usr/share/licenses/*
@@ -115,7 +116,7 @@ rm -rf ${TARGET_DIR}/var/lib/pacman/sync/
 
 msg "backup script"
 mkdir -p ${TARGET_DIR}/root/arch
-cp ./strap.sh ${TARGET_DIR}/root/arch
+cp `basename "$0"` ${TARGET_DIR}/root/arch
 
 msg "finalizing..."
 sync
