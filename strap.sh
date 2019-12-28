@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# wget https://github.com/smrtcdr/arch/raw/master/strap.sh
+# curl  -LO https://github.com/smrtcdr/arch/raw/master/strap.sh
 #
 
 # break on errors
