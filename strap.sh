@@ -23,8 +23,8 @@ function msg ()
 }
 
 msg "clearing partition table on ${DISK}"
-wipefs -a ${DISK}
-sgdisk -Z ${DISK}
+wipefs --all --force ${DISK}
+sgdisk --zap-all --clear --mbrtogpt ${DISK}
 
 msg "creating /boot and /root partitions on ${DISK}"
 sgdisk -n 0:0:+100M -t 0:ef00 -c 0:"efi_boot" ${DISK}
