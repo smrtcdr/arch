@@ -96,11 +96,11 @@ arch-chroot ${TARGET_DIR} /usr/bin/pacman -S --noconfirm linux virtualbox-guest-
 
 msg "system cleanup"
 arch-chroot ${TARGET_DIR} /usr/bin/pacman -Rdd --noconfirm --dbonly licenses pacman-mirrorlist
-sed -i 's/#IgnorePkg   =/IgnorePkg   = licenses, pacman-mirrorlist/' ${TARGET_DIR}/etc/pacman.conf
-sed -i 's|#NoExtract   =|NoExtract    = usr/share/doc/* \'$'\n\
-NoExtract    = usr/share/licenses/* \'$'\n\
-NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias \'$'\n\
-NoExtract    = usr/share/man/* !usr/share/man/man*|' ${TARGET_DIR}/etc/pacman.conf
+sed -i 's|#IgnorePkg   =|IgnorePkg   = licenses, pacman-mirrorlist/' ${TARGET_DIR}/etc/pacman.conf
+sed -i 's|#NoExtract   =|NoExtract   = usr/share/doc/* \
+NoExtract   = usr/share/licenses/* \
+NoExtract   = usr/share/locale/* !usr/share/locale/locale.alias \
+NoExtract   = usr/share/man/* !usr/share/man/man*|' ${TARGET_DIR}/etc/pacman.conf
 # remove with exclusions
 pushd ${TARGET_DIR}/usr/share/locale
 [ -n "$(find . -mindepth 1 ! -name "locale.alias" -delete 2>/dev/null)" ] && echo "error!"
