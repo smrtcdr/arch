@@ -117,7 +117,7 @@ rm -rf ${TARGET_DIR}/usr/share/doc/*
 rm -rf ${TARGET_DIR}/usr/share/licenses/*
 rm -rf ${TARGET_DIR}/var/cache/pacman/pkg/ 
 rm -rf ${TARGET_DIR}/var/lib/pacman/sync/ 
- cat <<-EOF > ${TARGET_DIR}/root/.profile
+ cat <<-EOF >> ${TARGET_DIR}/root/.profile
 
 # my stuff
 export PS1='\[\033[1;36m\]\u\[\033[1;31m\]@\[\033[1;32m\]\h:\[\033[1;35m\]\w\[\033[1;31m\]\$\[\033[0m\] '
