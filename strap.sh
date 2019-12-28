@@ -34,7 +34,7 @@ sgdisk -p /dev/sda
 
 msg "creating filesystems"
 mkfs.fat -F32 ${BOOT_PARTITION}
-mkfs.ext4 ${ROOT_PARTITION}
+mkfs.ext4 -F ${ROOT_PARTITION}
 
 msg "mounting partitions"
 mount ${ROOT_PARTITION} ${TARGET_DIR}
