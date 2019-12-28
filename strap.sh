@@ -89,13 +89,10 @@ arch-chroot ${TARGET_DIR} ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localti
 echo "a64vm" > ${TARGET_DIR}/etc/hostname
 
 msg "installing extra packages"
-arch-chroot ${TARGET_DIR} \
-  pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils-nox \
-            openssh net-tools wget \
-            vim bash-completion pacman-contrib arch-install-scripts
+arch-chroot ${TARGET_DIR} pacman -S --noconfirm openssh net-tools wget vim bash-completion pacman-contrib arch-install-scripts
 
 msg "installing linux kernel"
-arch-chroot ${TARGET_DIR} /usr/bin/pacman -S --noconfirm linux
+arch-chroot ${TARGET_DIR} /usr/bin/pacman -S --noconfirm linux virtualbox-guest-modules-arch virtualbox-guest-utils-nox
 
 msg "system cleanup"
 arch-chroot ${TARGET_DIR} pacman -Rdd --noconfirm --dbonly licenses pacman-mirrorlist
