@@ -22,6 +22,10 @@ function msg ()
   echo -e "${Green}[+] $*${Reset}"
 }
 
+msg "configuring pacman mirrors"
+echo -e 'Server = http://ftp.eenet.ee/pub/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
+sed -i 's/#Color/Color/' /etc/pacman.conf
+
 msg "clearing partition table on ${DISK}"
 wipefs --all --force ${DISK}
 sgdisk --zap-all --clear --mbrtogpt ${DISK}
@@ -41,17 +45,11 @@ mount ${ROOT_PARTITION} ${TARGET_DIR}
 mkdir ${TARGET_DIR}/boot
 mount ${BOOT_PARTITION} ${TARGET_DIR}/boot
 
-msg "configure pacman mirrors"
-echo -e 'Server = http://ftp.eenet.ee/pub/archlinux/$repo/os/$arch' > /etc/pacman.d/mirrorlist
-sed -i 's/#Color/Color/' /etc/pacman.conf
-
 msg "bootstrapping base installation"
 pacstrap ${TARGET_DIR} base sudo mc htop tmux
-sleep 3;
 
 msg "configuring EFI boot"
-arch-chroot ${TARGET_DIR} \
-  bootctl --path=/boot install
+arch-chroot ${TARGET_DIR} /usr/bin/bootctl --path=/boot install
 partuuid=$(blkid -s PARTUUID -o value ${ROOT_PARTITION})
 cat <<-EOF > ${TARGET_DIR}/boot/loader/entries/arch.conf
 title Arch Linux
@@ -60,8 +58,11 @@ initrd /initramfs-linux.img
 options root=PARTUUID=${partuuid} rw ipv6.disable=1
 EOF
 
-msg "generating fstab"
-genfstab -pU ${TARGET_DIR} >> ${TARGET_DIR}/etc/fstab
+msg "configuring locales"
+echo 'LANG=en_US.UTF-8' > ${TARGET_DIR}/etc/locale.conf
+echo 'KEYMAP=us' > ${TARGET_DIR}/etc/vconsole.conf
+sed -i 's/#en_US.UTF-8/en_US.UTF-8/' ${TARGET_DIR}/etc/locale.gen
+arch-chroot ${TARGET_DIR} /usr/bin/locale-gen
 
 msg "configure network"
 cat <<-EOF > ${TARGET_DIR}/etc/systemd/network/enp0s3.network
@@ -73,39 +74,35 @@ LinkLocalAddresing=no
 IPv6AcceptRA=no
 EOF
 echo 'nameserver 192.168.1.1' >> ${TARGET_DIR}/etc/resolv.conf
-arch-chroot ${TARGET_DIR} \
-  systemctl enable systemd-networkd
+arch-chroot ${TARGET_DIR} /usr/bin/systemctl enable systemd-networkd
 
-msg "installing linux kernel"
-arch-chroot ${TARGET_DIR} \
-  pacman -S --noconfirm linux
+msg "configuring system settings"
+genfstab -pU ${TARGET_DIR} >> ${TARGET_DIR}/etc/fstab
+cp -rT ${TARGET_DIR}/etc/skel ${TARGET_DIR}/root
+cat <<-EOF >> ${TARGET_DIR}/root/.bashrc
+# my stuff
+export PS1='\[\033[1;36m\]\u\[\033[1;31m\]@\[\033[1;32m\]\h:\[\033[1;35m\]\w\[\033[1;31m\]\$\[\033[0m\] '
+EOF
+sed -i 's/#Color/Color/' ${TARGET_DIR}/etc/pacman.conf
+sed -i 's/include unknown.syntax/include sh.syntax/' ${TARGET_DIR}/usr/share/mc/syntax/Syntax
+arch-chroot ${TARGET_DIR} ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localtime
+arch-chroot ${TARGET_DIR} hostnamectl set-hostname arch64
 
 msg "installing extra packages"
 arch-chroot ${TARGET_DIR} \
   pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils-nox \
             openssh net-tools wget \
             vim bash-completion pacman-contrib arch-install-scripts
-sleep 3;
 
-msg "configuring user settings"
-echo 'LANG=en_US.UTF-8' > ${TARGET_DIR}/etc/locale.conf
-echo 'KEYMAP=us' > ${TARGET_DIR}/etc/vconsole.conf
-sed -i 's/#en_US.UTF-8/en_US.UTF-8/' ${TARGET_DIR}/etc/locale.gen
-sed -i 's/#Color/Color/' ${TARGET_DIR}/etc/pacman.conf
-sed -i 's/include unknown.syntax/include sh.syntax/' ${TARGET_DIR}/usr/share/mc/syntax/Syntax
-arch-chroot ${TARGET_DIR} \
-  cp -rT /etc/skel /root; \
-  ln -sf /usr/share/zoneinfo/Europe/Tallinn /etc/localtime; \
-  locale-gen; \
-  hostnamectl set-hostname arch64
-sleep 3;
+msg "installing linux kernel"
+arch-chroot ${TARGET_DIR} /usr/bin/pacman -S --noconfirm linux
 
 msg "system cleanup"
 arch-chroot ${TARGET_DIR} pacman -Rdd --noconfirm --dbonly licenses pacman-mirrorlist
 sed -i 's/#IgnorePkg   =/IgnorePkg   = licenses, pacman-mirrorlist/' ${TARGET_DIR}/etc/pacman.conf
-sed -i 's|#NoExtract   =|NoExtract    = usr/share/doc/*\
-NoExtract    = usr/share/licenses/*\
-NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias\
+sed -i 's|#NoExtract   =|NoExtract    = usr/share/doc/* \'$'\n\
+NoExtract    = usr/share/licenses/* \'$'\n\
+NoExtract    = usr/share/locale/* !usr/share/locale/locale.alias \'$'\n\
 NoExtract    = usr/share/man/* !usr/share/man/man*|' ${TARGET_DIR}/etc/pacman.conf
 # remove with exclusions
 cd ${TARGET_DIR}/usr/share/locale
@@ -117,15 +114,13 @@ rm -rf ${TARGET_DIR}/usr/share/doc/*
 rm -rf ${TARGET_DIR}/usr/share/licenses/*
 rm -rf ${TARGET_DIR}/var/cache/pacman/pkg/ 
 rm -rf ${TARGET_DIR}/var/lib/pacman/sync/ 
-cat <<-EOF >> ${TARGET_DIR}/root/.bashrc
 
-# my stuff
-export PS1='\[\033[1;36m\]\u\[\033[1;31m\]@\[\033[1;32m\]\h:\[\033[1;35m\]\w\[\033[1;31m\]\$\[\033[0m\] '
-EOF
+msg "backup script"
 mkdir -p ${TARGET_DIR}/root/arch
 cp ./strap.sh ${TARGET_DIR}/root/arch
-du -hsx ${TARGET_DIR}
-sync;
 
+msg "finalizing..."
+sync
+du -hsx ${TARGET_DIR}
 msg "installation complete!"
 sleep 3
