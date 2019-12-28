@@ -102,8 +102,7 @@ NoExtract   = usr/share/licenses/* \
 NoExtract   = usr/share/locale/* !usr/share/locale/locale.alias \
 NoExtract   = usr/share/man/* !usr/share/man/man*|' ${TARGET_DIR}/etc/pacman.conf
 # remove with exclusions
-pushd >/dev/null
-cd ${TARGET_DIR}/usr/share/locale
+pushd ${TARGET_DIR}/usr/share/locale >/null
 [ -n "$(find . -mindepth 1 ! -name "locale.alias" -delete 2>/dev/null)" ] && echo "error!"
 cd ${TARGET_DIR}/usr/share/man
 [ -n "$(find . -mindepth 1 -type d ! -name "man*" -delete 2>/dev/null)" ] && echo "error!"
