@@ -110,8 +110,8 @@ popd >/dev/null
 # remove everything
 rm -rf ${TARGET_DIR}/usr/share/doc/*
 rm -rf ${TARGET_DIR}/usr/share/licenses/*
-rm -rf ${TARGET_DIR}/var/cache/pacman/pkg/ 
-rm -rf ${TARGET_DIR}/var/lib/pacman/sync/ 
+rm -rf ${TARGET_DIR}/var/cache/pacman/pkg/*
+rm -rf ${TARGET_DIR}/var/lib/pacman/sync/*
 
 msg "backup script"
 mkdir -p ${TARGET_DIR}/root/arch
