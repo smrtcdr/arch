@@ -67,7 +67,7 @@ arch-chroot ${TARGET_DIR} /usr/bin/locale-gen
 msg "configure network"
 cat <<-EOF > ${TARGET_DIR}/etc/systemd/network/enp0s3.network
 [Match]
-Name=enp0s3
+name=enp0s3
 [Network]
 DHCP=ipv4
 LinkLocalAddresing=no
