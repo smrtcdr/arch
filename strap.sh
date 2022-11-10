@@ -92,7 +92,7 @@ msg "installing extra packages"
 arch-chroot ${TARGET_DIR} pacman -S --noconfirm openssh net-tools wget vim bash-completion pacman-contrib arch-install-scripts
 
 msg "installing linux kernel"
-arch-chroot ${TARGET_DIR} /usr/bin/pacman -S --noconfirm linux virtualbox-guest-modules-arch virtualbox-guest-utils-nox
+arch-chroot ${TARGET_DIR} /usr/bin/pacman -S --noconfirm linux virtualbox-guest-utils-nox
 
 msg "system cleanup"
 arch-chroot ${TARGET_DIR} /usr/bin/pacman -Rdd --noconfirm --dbonly licenses pacman-mirrorlist
